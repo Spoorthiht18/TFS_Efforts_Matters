@@ -1,28 +1,10 @@
-/*
-  # Employee Effort Tracking System
+-- Drop existing policies (if already created)
+DROP POLICY IF EXISTS "Allow all to view effort records" ON effort_records;
+DROP POLICY IF EXISTS "Allow all to insert effort records" ON effort_records;
+DROP POLICY IF EXISTS "Allow all to update effort records" ON effort_records;
+DROP POLICY IF EXISTS "Allow all to delete effort records" ON effort_records;
 
-  1. New Tables
-    - `effort_records`
-      - `id` (uuid, primary key) - Unique identifier for each record
-      - `developer_name` (text) - Name of the developer
-      - `story_number` (text) - Story/Incident/Task number
-      - `description` (text) - Story or incident description
-      - `state` (text) - Current state (In Progress, Completed, etc.)
-      - `tool_used` (boolean) - Whether AI tool was used
-      - `tool_name` (text, nullable) - Name of tool used (Codex/ChatGPT)
-      - `effort_with_tool` (numeric, nullable) - Hours spent with AI tool
-      - `effort_without_tool` (numeric, nullable) - Estimated hours without tool
-      - `reason_not_used` (text, nullable) - Reason if tool was not used
-      - `created_at` (timestamptz) - When record was created
-      - `updated_at` (timestamptz) - Last update timestamp
-
-  2. Security
-    - Enable RLS on `effort_records` table
-    - Add policy for anyone to read all records (for dashboard viewing)
-    - Add policy for anyone to insert records (for employee submissions)
-    - Add policy for anyone to update their own records
-*/
-
+-- Ensure table exists
 CREATE TABLE IF NOT EXISTS effort_records (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   developer_name text NOT NULL,
@@ -38,25 +20,27 @@ CREATE TABLE IF NOT EXISTS effort_records (
   updated_at timestamptz DEFAULT now()
 );
 
+-- Enable RLS
 ALTER TABLE effort_records ENABLE ROW LEVEL SECURITY;
 
+-- Recreate policies cleanly
 CREATE POLICY "Allow all to view effort records"
-  ON effort_records
-  FOR SELECT
-  USING (true);
+ON effort_records
+FOR SELECT
+USING (true);
 
 CREATE POLICY "Allow all to insert effort records"
-  ON effort_records
-  FOR INSERT
-  WITH CHECK (true);
+ON effort_records
+FOR INSERT
+WITH CHECK (true);
 
 CREATE POLICY "Allow all to update effort records"
-  ON effort_records
-  FOR UPDATE
-  USING (true)
-  WITH CHECK (true);
+ON effort_records
+FOR UPDATE
+USING (true)
+WITH CHECK (true);
 
 CREATE POLICY "Allow all to delete effort records"
-  ON effort_records
-  FOR DELETE
-  USING (true);
+ON effort_records
+FOR DELETE
+USING (true);

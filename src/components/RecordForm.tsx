@@ -18,6 +18,7 @@ export default function RecordForm({ onSuccess }: RecordFormProps) {
     effort_without_tool: '',
     reason_not_used: '',
   });
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -35,12 +36,14 @@ export default function RecordForm({ onSuccess }: RecordFormProps) {
           state: formData.state,
           tool_used: formData.tool_used,
           tool_name: formData.tool_used ? formData.tool_name : null,
-          effort_with_tool: formData.tool_used && formData.effort_with_tool
-            ? parseFloat(formData.effort_with_tool)
-            : null,
-          effort_without_tool: formData.effort_without_tool
-            ? parseFloat(formData.effort_without_tool)
-            : null,
+          effort_with_tool:
+            formData.tool_used && formData.effort_with_tool !== ''
+              ? parseFloat(formData.effort_with_tool)
+              : null,
+          effort_without_tool:
+            formData.effort_without_tool !== ''
+              ? parseFloat(formData.effort_without_tool)
+              : null,
           reason_not_used: !formData.tool_used ? formData.reason_not_used : null,
         },
       ]);
@@ -81,146 +84,126 @@ export default function RecordForm({ onSuccess }: RecordFormProps) {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
+
+        {/* Developer + Story */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Developer Name *
-            </label>
-            <input
-              type="text"
-              required
-              value={formData.developer_name}
-              onChange={(e) => setFormData({ ...formData, developer_name: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Story/Incident/Task Number *
-            </label>
-            <input
-              type="text"
-              required
-              value={formData.story_number}
-              onChange={(e) => setFormData({ ...formData, story_number: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Description *
-          </label>
-          <textarea
+          <input
+            type="text"
             required
-            rows={3}
-            value={formData.description}
-            onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Developer Name"
+            value={formData.developer_name}
+            onChange={(e) => setFormData({ ...formData, developer_name: e.target.value })}
+            className="w-full px-3 py-2 border rounded"
+          />
+
+          <input
+            type="text"
+            required
+            placeholder="Story Number"
+            value={formData.story_number}
+            onChange={(e) => setFormData({ ...formData, story_number: e.target.value })}
+            className="w-full px-3 py-2 border rounded"
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              State *
-            </label>
-            <select
-              value={formData.state}
-              onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option>In Progress</option>
-              <option>Completed</option>
-              <option>Blocked</option>
-              <option>On Hold</option>
-              <option>Testing</option>
-            </select>
-          </div>
+        {/* Description */}
+        <textarea
+          required
+          rows={3}
+          placeholder="Description"
+          value={formData.description}
+          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+          className="w-full px-3 py-2 border rounded"
+        />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Actual Effort (hrs) without Tool
-            </label>
+        {/* State + Without Tool */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <select
+            value={formData.state}
+            onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+            className="w-full px-3 py-2 border rounded"
+          >
+            <option>In Progress</option>
+            <option>Completed</option>
+            <option>Blocked</option>
+            <option>On Hold</option>
+            <option>Testing</option>
+          </select>
+
+          {/* FIXED INPUT */}
+          <input
+            type="number"
+            step="any"
+            min="0"
+            placeholder="Effort without tool (e.g. 1.25)"
+            value={formData.effort_without_tool}
+            onChange={(e) =>
+              setFormData({
+                ...formData,
+                effort_without_tool: e.target.value,
+              })
+            }
+            className="w-full px-3 py-2 border rounded"
+          />
+        </div>
+
+        {/* Tool Used */}
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={formData.tool_used}
+            onChange={(e) => setFormData({ ...formData, tool_used: e.target.checked })}
+          />
+          AI Tool Used
+        </label>
+
+        {formData.tool_used ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            <select
+              value={formData.tool_name}
+              onChange={(e) => setFormData({ ...formData, tool_name: e.target.value })}
+              className="w-full px-3 py-2 border rounded"
+            >
+              <option value="">Select Tool</option>
+              <option>Codex</option>
+              <option>ChatGPT</option>
+              <option>GitHub Copilot</option>
+            </select>
+
+            {/* FIXED INPUT */}
             <input
               type="number"
-              step="0.5"
+              step="any"
               min="0"
-              value={formData.effort_without_tool}
-              onChange={(e) => setFormData({ ...formData, effort_without_tool: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Effort with tool (e.g. 0.25)"
+              value={formData.effort_with_tool}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  effort_with_tool: e.target.value,
+                })
+              }
+              className="w-full px-3 py-2 border rounded"
             />
           </div>
-        </div>
+        ) : (
+          <textarea
+            rows={2}
+            placeholder="Reason for not using tool"
+            value={formData.reason_not_used}
+            onChange={(e) =>
+              setFormData({ ...formData, reason_not_used: e.target.value })
+            }
+            className="w-full px-3 py-2 border rounded"
+          />
+        )}
 
-        <div className="border-t pt-4">
-          <label className="flex items-center gap-2 mb-4">
-            <input
-              type="checkbox"
-              checked={formData.tool_used}
-              onChange={(e) => setFormData({ ...formData, tool_used: e.target.checked })}
-              className="w-4 h-4 text-blue-600 focus:ring-2 focus:ring-blue-500"
-            />
-            <span className="text-sm font-medium text-gray-700">AI Tool Used</span>
-          </label>
-
-          {formData.tool_used ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Tool Name *
-                </label>
-                <select
-                  required
-                  value={formData.tool_name}
-                  onChange={(e) => setFormData({ ...formData, tool_name: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                >
-                  <option value="">Select Tool</option>
-                  <option>Codex</option>
-                  <option>ChatGPT</option>
-                  <option>GitHub Copilot</option>
-                  <option>Other</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Effort (hrs) with Tool
-                </label>
-                <input
-                  type="number"
-                  step="0.5"
-                  min="0"
-                  value={formData.effort_with_tool}
-                  onChange={(e) => setFormData({ ...formData, effort_with_tool: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-          ) : (
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Reason for Not Using Tool
-              </label>
-              <textarea
-                rows={2}
-                value={formData.reason_not_used}
-                onChange={(e) => setFormData({ ...formData, reason_not_used: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Optional: Explain why an AI tool was not used"
-              />
-            </div>
-          )}
-        </div>
-
-        <div className="flex justify-end pt-4">
+        <div className="flex justify-end">
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="px-6 py-2 bg-blue-600 text-white rounded"
           >
             {loading ? 'Submitting...' : 'Submit Record'}
           </button>
